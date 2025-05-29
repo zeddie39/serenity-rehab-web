@@ -7,6 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 import { Calendar, Clock, Mail } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -17,13 +19,52 @@ const Contact = () => {
     message: "",
     urgency: ""
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Integrate with Supabase when connected
-    console.log("Form submitted:", formData);
-    alert("Thank you for your message. We'll get back to you within 24 hours.");
-    setFormData({ name: "", email: "", phone: "", subject: "", message: "", urgency: "" });
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase
+        .from('inquiries')
+        .insert([
+          {
+            name: formData.name,
+            email: formData.email,
+            phone: formData.phone || null,
+            subject: formData.subject || null,
+            message: formData.message,
+            urgency: formData.urgency || null,
+            status: 'new'
+          }
+        ]);
+
+      if (error) {
+        console.error('Error submitting inquiry:', error);
+        toast({
+          title: "Error",
+          description: "There was an error submitting your inquiry. Please try again.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Success",
+          description: "Thank you for your message. We'll get back to you within 24 hours.",
+        });
+        setFormData({ name: "", email: "", phone: "", subject: "", message: "", urgency: "" });
+      }
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (field: string, value: string) => {
@@ -220,8 +261,13 @@ const Contact = () => {
                     </p>
                   </div>
 
-                  <Button type="submit" size="lg" className="w-full bg-teal-600 hover:bg-teal-700">
-                    Send Message
+                  <Button 
+                    type="submit" 
+                    size="lg" 
+                    className="w-full bg-teal-600 hover:bg-teal-700"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Sending..." : "Send Message"}
                   </Button>
                 </form>
               </CardContent>
