@@ -66,7 +66,21 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Healthcare-focused color palette
+				// Healing and Trust Color Palette
+				healing: {
+					sage: 'rgb(var(--healing-sage))',
+					lavender: 'rgb(var(--healing-lavender))',
+					cream: 'rgb(var(--healing-cream))',
+					ocean: 'rgb(var(--healing-ocean))',
+					earth: 'rgb(var(--healing-earth))'
+				},
+				trust: {
+					blue: 'rgb(var(--trust-blue))'
+				},
+				soul: {
+					purple: 'rgb(var(--soul-purple))'
+				},
+				// Enhanced teal palette for healthcare
 				teal: {
 					50: '#f0fdfa',
 					100: '#ccfbf1',
@@ -111,12 +125,32 @@ export default {
 						opacity: '1',
 						transform: 'translateY(0)'
 					}
+				},
+				'soul-pulse': {
+					'0%, 100%': {
+						opacity: '1',
+						transform: 'scale(1)'
+					},
+					'50%': {
+						opacity: '0.8',
+						transform: 'scale(1.02)'
+					}
+				},
+				'healing-glow': {
+					'0%, 100%': {
+						boxShadow: '0 0 20px rgba(134, 176, 142, 0.3)'
+					},
+					'50%': {
+						boxShadow: '0 0 40px rgba(147, 125, 194, 0.4), 0 0 60px rgba(134, 176, 142, 0.2)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-				'fade-in': 'fade-in 0.5s ease-out'
+				'fade-in': 'fade-in 0.5s ease-out',
+				'soul-pulse': 'soul-pulse 3s ease-in-out infinite',
+				'healing-glow': 'healing-glow 4s ease-in-out infinite'
 			}
 		}
 	},
