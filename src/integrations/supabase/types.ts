@@ -141,7 +141,17 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      get_dashboard_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          inquiries_last_30_days: number
+          new_inquiries: number
+          bookings_last_30_days: number
+          pending_bookings: number
+          new_users_last_30_days: number
+          total_users: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,15 +22,12 @@ export const AdminDashboard = () => {
 
   const fetchDashboardStats = async () => {
     try {
-      const { data, error } = await supabase
-        .from('dashboard_stats')
-        .select('*')
-        .single();
+      const { data, error } = await supabase.rpc('get_dashboard_stats');
 
       if (error) {
         console.error('Error fetching dashboard stats:', error);
-      } else {
-        setStats(data);
+      } else if (data && data.length > 0) {
+        setStats(data[0]);
       }
     } catch (error) {
       console.error('Error:', error);
