@@ -24,45 +24,75 @@ export const AdminSignIn = ({ onSignInSuccess }: AdminSignInProps) => {
     setIsSigningIn(true);
 
     try {
+      console.log('Attempting to sign in user:', email);
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
+        console.error('Sign in error:', error);
         toast({
           title: "Sign In Failed",
           description: error.message,
           variant: "destructive",
         });
-      } else if (data.user) {
-        // Check admin status
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', data.user.id)
-          .single();
-        
-        if (profile?.role === 'admin') {
-          toast({
-            title: "Welcome",
-            description: "Successfully signed in to admin panel.",
-          });
-          onSignInSuccess();
-        } else {
-          toast({
-            title: "Access Denied",
-            description: "You don't have admin privileges.",
-            variant: "destructive",
-          });
-          await supabase.auth.signOut();
-        }
+        return;
+      }
+
+      if (!data.user) {
+        toast({
+          title: "Sign In Failed",
+          description: "No user data returned.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log('User signed in successfully:', data.user.id);
+
+      // Check if user has admin role
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', data.user.id)
+        .single();
+      
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
+        await supabase.auth.signOut();
+        toast({
+          title: "Access Denied",
+          description: "Failed to verify admin privileges.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log('User profile role:', profile?.role);
+      
+      if (profile?.role === 'admin') {
+        console.log('Admin access granted');
+        toast({
+          title: "Welcome",
+          description: "Successfully signed in to admin panel.",
+        });
+        onSignInSuccess();
+      } else {
+        console.log('Admin access denied - user role:', profile?.role);
+        await supabase.auth.signOut();
+        toast({
+          title: "Access Denied",
+          description: "You don't have admin privileges.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
-      console.error('Sign in error:', error);
+      console.error('Unexpected sign in error:', error);
       toast({
         title: "Error",
-        description: "An unexpected error occurred.",
+        description: "An unexpected error occurred during sign in.",
         variant: "destructive",
       });
     } finally {
